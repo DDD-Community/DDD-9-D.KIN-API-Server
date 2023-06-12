@@ -11,11 +11,10 @@ func NewRouter() (r *chi.Mux) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	if serverless.IsLambdaRuntime() {
-
+		r.Use(middleware.Recoverer)
 	} else {
 		r.Use(middleware.Logger)
 	}
-	r.Use(middleware.Recoverer)
 	r.Use(BodyNFCNormalize)
 	return
 }
