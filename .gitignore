@@ -1,0 +1,13 @@
+.vscode
+.DS_Store
+.idea
+.env.local
+
+main
+function.zip
+config.json
+deploy_config.json
+dev_deploy_config.json
+build/
+
+docs/gen/
