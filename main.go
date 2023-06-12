@@ -8,6 +8,7 @@ import (
 	"d.kin-app/internal/serverless"
 	"d.kin-app/internal/typex"
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
@@ -24,6 +25,7 @@ func wrapToWarmUp(fn apiGatewayHandler) lambdaHandler {
 
 	return func(ctx context.Context, payload json.RawMessage) (result json.RawMessage, err error) {
 		if len(payload) == 2 && bytes.Equal(payload, noData) {
+			fmt.Println("WARM UP")
 			// to warm up
 			result = noData
 			return
