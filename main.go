@@ -53,7 +53,7 @@ func main() {
 		httpx.WriteContentType(w, httpx.ApplicationJSONCharsetUTF8)
 		httpx.WriteStatus(w, http.StatusOK)
 		httpx.WriteJSON(w, typex.JSONObject{
-			"hello": "world",
+			"hello": "hello",
 		})
 	})
 	if serverless.IsLambdaRuntime() {

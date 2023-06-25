@@ -12,5 +12,7 @@ func IsLambdaRuntime() bool {
 }
 
 func isLambdaRuntime() bool {
-	return os.Getenv(envLambdaServerPort) != "" || os.Getenv(envLambdaRuntimeAPI) != ""
+	_, ok1 := os.LookupEnv(envLambdaServerPort)
+	_, ok2 := os.LookupEnv(envLambdaRuntimeAPI)
+	return ok1 && ok2
 }
