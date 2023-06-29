@@ -1,0 +1,58 @@
+direction: right
+  
+title: {
+  label: 서비스 인프라 구조
+  near: bottom-center
+  shape: text
+  style.font-size: 40
+  style.underline: true
+}
+
+auth0: {
+  icon: ./res/icon-auth0.svg
+}
+
+aws: {
+  icon: https://icons.terrastruct.com/dev%2Famazonwebservices.svg
+  api gateway -> lambda app: 라우트 및 인증 관리
+  lambda app -> dynamoDB: 기능에 따른 데이터 CRUD
+  eventbridge -> lambda app: 스케쥴러를 이용한 웜업, rate 5min
+  eventbridge -> lambda push notification: 스케쥴러를 이용한 푸시 확인, rate 1min
+  lambda push notification -> dynamoDB: 데이터 읽기 및 수정
+
+  api gateway: {
+    icon: https://icons.terrastruct.com/aws%2FMobile%2FAmazon-API-Gateway.svg
+    lambda auth: {
+      icon: https://icons.terrastruct.com/aws%2FCompute%2FAWS-Lambda.svg
+    }
+  }
+  
+  eventbridge: {
+    icon: https://icons.terrastruct.com/aws%2FApplication Integration%2FAmazon-EventBridge.svg
+  }
+
+  lambda app: {
+    icon: https://icons.terrastruct.com/aws%2FCompute%2FAWS-Lambda.svg
+  }
+
+  lambda push notification: {
+    icon: https://icons.terrastruct.com/aws%2FCompute%2FAWS-Lambda.svg
+  }
+
+  dynamoDB: {
+    icon: https://icons.terrastruct.com/aws%2FDatabase%2FAmazon-DynamoDB.svg
+  }
+}
+
+aws.api gateway.lambda auth -> auth0: 인증 확인
+
+aws.lambda push notification -> apns: iOS 푸시
+aws.lambda push notification -> fcm: Android 푸시
+
+apns: {
+  icon: ./res/apns.png
+}
+
+fcm: {
+  icon: ./res/fcm.png
+}

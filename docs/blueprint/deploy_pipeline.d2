@@ -1,0 +1,33 @@
+direction: right
+
+title: {
+    label: 배포 파이프 라인
+    near: bottom-center
+    shape: text
+    style.font-size: 40
+    style.underline: true
+}
+
+local: {
+    code: {
+        icon: https://icons.terrastruct.com/dev/go.svg
+    }
+}
+local.code -> github.main: commit
+
+github: {
+    icon: https://icons.terrastruct.com/dev/github.svg
+    main
+    github actions
+    main -> github actions: commit trigger
+}
+
+github.github actions -> aws.lambda: deploy
+
+aws: {
+    icon: https://icons.terrastruct.com/dev%2Famazonwebservices.svg
+    lambda: {
+        icon: https://icons.terrastruct.com/aws%2FCompute%2FAWS-Lambda.svg
+    }
+}
+
