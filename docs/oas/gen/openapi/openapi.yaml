@@ -24,7 +24,10 @@ paths:
           description: 성공
       summary: Hello World
 components:
-  schemas: {}
+  schemas:
+    Empty:
+      example: {}
+      type: object
   securitySchemes:
     jwt:
       in: header

@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -26,9 +26,9 @@ jobs:
 
     - name: Build for AWS Lambda
       run: make lambda-build
-      
+
     - name: Create deploy config
       run: echo "${{ secrets.DEPLOY_CONFIG_YAML }}" > deploy_config.yaml
-      
+
     - name: Deploy AWS Lambda\
       run: make lambda-deploy
