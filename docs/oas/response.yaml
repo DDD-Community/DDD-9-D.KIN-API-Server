@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: 응답 바디 정의
+  version: '-'
+
+paths:
+
+# Reference : https://swagger.io/docs/specification/components/
+
+#components:
+#  responses:
+#    TestExample:
+#      description: ErrorExample
+#      content:
+#        application/json:
+#          examples:
+#            ERR-0:
+#              value: >
+#                {
+#                    "code": "ERR-0",
+#                    "message": "error message"
+#                }
+#          schema:
+#            $ref: 'schemas.yaml#/components/schemas/ErrorData'

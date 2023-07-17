@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: 모델 정의
+  version: '-'
+
+paths:
+
+components:
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+      example: 89b14b63-0d50-4141-8916-a158f314e6d0
+
+    UnixMillisTime:
+      type: integer
+      format: int64
+      description: Unix Time, 밀리세컨드
+
+    URL:
+      type: string
+      format: url
+      description: http, https, url 링크
+      example: https://example.com
+
+    ErrorData:
+      title: 에러 모델
+      description: 에러 공용 모델
+      required: [message]
+      properties:
+        code:
+          type: string
+          example: ERR-0
+
+        message:
+          type: string
+          example: 메세지

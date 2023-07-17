@@ -47,15 +47,18 @@ func wrapToWarmUp(fn apiGatewayHandler) lambdaHandler {
 	}
 }
 
+// TODO: to be deleted
+func helloWorldHandler(w http.ResponseWriter, _ *http.Request) {
+	httpx.WriteContentType(w, httpx.ApplicationJSONCharsetUTF8)
+	httpx.WriteStatus(w, http.StatusOK)
+	httpx.WriteJSON(w, typex.JSONObject{
+		"hello": "world",
+	})
+}
+
 func main() {
 	r := chix.NewRouter()
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		httpx.WriteContentType(w, httpx.ApplicationJSONCharsetUTF8)
-		httpx.WriteStatus(w, http.StatusOK)
-		httpx.WriteJSON(w, typex.JSONObject{
-			"키": "벨류",
-		})
-	})
+	r.Get("/", helloWorldHandler)
 	if serverless.IsLambdaRuntime() {
 		lambda.Start(wrapToWarmUp(httpadapter.NewV2(r).ProxyWithContext))
 	} else {

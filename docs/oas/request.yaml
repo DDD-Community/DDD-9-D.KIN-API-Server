@@ -1,0 +1,9 @@
+openapi: 3.0.3
+info:
+  title: 요청 바디 정의
+  version: '-'
+
+paths:
+
+#components:
+#  requestBodies:

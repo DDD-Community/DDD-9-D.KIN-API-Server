@@ -8,5 +8,3 @@ function.zip
 config.json
 deploy_config.*
 build/
-
-docs/gen/

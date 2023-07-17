@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  description: API 문서
+  title: API 문서
+  version: "-"
+servers:
+- description: API 문서
+  url: https://jrq7w2orw3.execute-api.ap-northeast-2.amazonaws.com
+tags:
+- description: 태그 태그 태그
+  name: Test Tag
+paths:
+  /:
+    get:
+      description: 테스트용 API
+      responses:
+        "200":
+          content:
+            application/json:
+              example: |
+                {
+                  "hello": "world"
+                }
+          description: 성공
+      summary: Hello World
+components:
+  schemas: {}
+  securitySchemes:
+    jwt:
+      in: header
+      name: Authorization
+      scheme: Bearer
+      type: http

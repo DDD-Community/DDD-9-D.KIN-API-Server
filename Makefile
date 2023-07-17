@@ -12,7 +12,7 @@ install-oas-mac:
 	brew install openapi-generator
 
 oas:
-	cd $(PROJECT_DIR)/docs && openapi-generator generate -i docs.yaml -g openapi-yaml -o gen
+	cd $(PROJECT_DIR)/docs/oas && openapi-generator generate -i docs.yaml -g openapi-yaml -o gen
 
 gen: oas
 

@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: 예제 정의
+  version: '-'
+
+paths:
+
+
+#components:
+#  examples:
