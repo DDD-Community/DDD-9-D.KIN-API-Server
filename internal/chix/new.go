@@ -2,14 +2,14 @@ package chix
 
 import (
 	"d.kin-app/docs/oas"
-	"d.kin-app/internal/serverless"
+	"d.kin-app/internal/awsx/lambdax"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 func NewRouter() (r *chi.Mux) {
 	r = chi.NewRouter()
-	if serverless.IsLambdaRuntime() {
+	if lambdax.IsLambdaRuntime() {
 		r.Use(middleware.Recoverer)
 	}
 

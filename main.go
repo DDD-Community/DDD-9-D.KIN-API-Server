@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
+	"d.kin-app/internal/awsx/lambdax"
 	"d.kin-app/internal/chix"
 	"d.kin-app/internal/httpx"
-	"d.kin-app/internal/serverless"
 	"d.kin-app/internal/typex"
 	"encoding/json"
 	"fmt"
@@ -15,52 +14,53 @@ import (
 	"net/http"
 )
 
-type (
-	apiGatewayHandler func(context.Context, events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error)
-	lambdaHandler     func(context.Context, json.RawMessage) (json.RawMessage, error)
-)
+var _ lambda.Handler = (*handler)(nil)
 
-func wrapToWarmUp(fn apiGatewayHandler) lambdaHandler {
-	var noData = []byte("{}")
+type handler struct {
+	adapter *httpadapter.HandlerAdapterV2
+}
 
-	return func(ctx context.Context, payload json.RawMessage) (result json.RawMessage, err error) {
-		if len(payload) == 2 && bytes.Equal(payload, noData) {
-			fmt.Println("WARM UP")
-			// to warm up
-			result = noData
-			return
-		}
-
-		var req events.APIGatewayV2HTTPRequest
-		err = json.Unmarshal(payload, &req)
-		if err != nil {
-			return
-		}
-
-		res, err := fn(ctx, req)
-		if err != nil {
-			return
-		}
-
-		result, err = json.Marshal(res)
+func (h *handler) Invoke(ctx context.Context, payload []byte) (result []byte, err error) {
+	if lambdax.IsEmptyPayload(payload) {
+		fmt.Println("WARM UP") // TODO: structured logger 로변경 필요
+		// to warm up
+		result = lambdax.EmptyPayload
 		return
 	}
+
+	var req events.APIGatewayV2HTTPRequest
+	err = json.Unmarshal(payload, &req)
+	if err != nil {
+		return
+	}
+
+	res, err := h.adapter.ProxyWithContext(ctx, req)
+	if err != nil {
+		return
+	}
+
+	return json.Marshal(res)
 }
 
 // TODO: to be deleted
-func helloWorldHandler(w http.ResponseWriter, _ *http.Request) {
-	httpx.WriteContentType(w, httpx.ApplicationJSONCharsetUTF8)
-	httpx.WriteStatus(w, http.StatusOK)
-	httpx.WriteJSON(w, typex.JSONObject{
-		"hello": "world",
-	})
+func createHelloWorldHandler(key, value string) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		httpx.WriteContentType(w, httpx.ApplicationJSONCharsetUTF8)
+		httpx.WriteStatus(w, http.StatusOK)
+		httpx.WriteJSON(w, typex.JSONObject{
+			key: value,
+		})
+	}
 }
 
 func main() {
 	r := chix.NewRouter()
-	r.Get("/", helloWorldHandler)
-	if serverless.IsLambdaRuntime() {
-		lambda.Start(wrapToWarmUp(httpadapter.NewV2(r).ProxyWithContext))
+	r.Get("/", createHelloWorldHandler("hello", "world"))
+	r.Get("/need-auth", createHelloWorldHandler("hi", "user"))
+	if lambdax.IsLambdaRuntime() {
+		lambda.Start(&handler{
+			adapter: httpadapter.NewV2(r),
+		})
 	} else {
 		http.ListenAndServe(":3000", r)
 	}
