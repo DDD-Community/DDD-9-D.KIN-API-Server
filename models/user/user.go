@@ -131,21 +131,22 @@ var ptr_ddbUpdateExp_ProfileUpdate = typex.P(
 )
 
 func (u *User) ProfileUpdate(imageURL *string, nickname string) (err error) {
-	ctx := u.Context()
-	err = IsUsableNickname(ctx, nickname)
-	if err != nil {
-		return
-	}
-
 	isSameNickname := u.Nickname == nickname
 	isSameImageURL := typex.PrimitiveDeepEq(u.ImageURL, imageURL)
 	if isSameNickname && isSameImageURL {
 		return
 	}
 
+	ctx := u.Context()
+
 	nowMilli := time.Now().UnixMilli()
 	txItems := make([]ddbTypes.TransactWriteItem, 0, 3)
 	if !isSameNickname {
+		err = IsUsableNickname(ctx, nickname)
+		if err != nil {
+			return
+		}
+
 		txItems = append(txItems, ddbTypes.TransactWriteItem{
 			Put: &ddbTypes.Put{
 				Item:                                makeDDBKeyNickname(nickname),
