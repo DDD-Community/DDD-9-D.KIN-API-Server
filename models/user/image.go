@@ -1,22 +1,16 @@
 package user
 
 import (
-	"bytes"
 	"context"
 	"d.kin-app/internal/awsx"
 	"d.kin-app/internal/awsx/lambdax"
 	"d.kin-app/internal/sha3x"
 	"d.kin-app/internal/typex"
+	"d.kin-app/modules/ffmpeg"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/chai2010/webp"
 	"github.com/google/uuid"
-	"golang.org/x/image/bmp"
-	"image"
-	"image/jpeg"
-	"image/png"
 	"path"
 )
 
@@ -58,25 +52,12 @@ func (i *Image) makeWebP(ctx context.Context) (_ Image, err error) {
 	}
 	defer resp.Body.Close()
 
-	var img image.Image
-	switch i.File.MimeType {
-	case "image/bmp":
-		img, err = bmp.Decode(resp.Body)
-	case "image/jpeg":
-		img, err = jpeg.Decode(resp.Body)
-	case "image/png":
-		img, err = png.Decode(resp.Body)
-	default:
-		err = errors.New("mime type not supported")
-		return
-	}
-
+	file, err := ffmpeg.EncodeWebP(ctx, resp.Body)
 	if err != nil {
 		return
 	}
-	var buf bytes.Buffer
-	buf.Grow(1024 * 1024 * 20)
-	err = webp.Encode(&buf, img, nil)
+	defer file.Close()
+	fileStat, err := file.Stat()
 	if err != nil {
 		return
 	}
@@ -85,7 +66,7 @@ func (i *Image) makeWebP(ctx context.Context) (_ Image, err error) {
 		S3Bucket:    i.S3Bucket,
 		S3ObjectKey: fmt.Sprintf("%s.webp", i.S3ObjectKey),
 		File: ImageFile{
-			Size:     int64(buf.Len()),
+			Size:     fileStat.Size(),
 			MimeType: "image/webp",
 		},
 	}
@@ -94,7 +75,7 @@ func (i *Image) makeWebP(ctx context.Context) (_ Image, err error) {
 	_, err = awsx.S3.Value().PutObject(ctx, &s3.PutObjectInput{
 		Bucket: &optimizedImage.S3Bucket,
 		Key:    &optimizedImage.S3ObjectKey,
-		Body:   &buf,
+		Body:   file,
 	})
 	if err != nil {
 		return

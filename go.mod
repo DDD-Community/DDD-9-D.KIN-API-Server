@@ -15,7 +15,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.24.0
 	github.com/aws/smithy-go v1.14.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.14.0
-	github.com/chai2010/webp v1.1.1
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
@@ -23,7 +22,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/exp v0.0.0-20230728194245-b0cb94b80691
-	golang.org/x/image v0.9.0
 	golang.org/x/text v0.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )
