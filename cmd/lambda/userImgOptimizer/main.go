@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func handle(ctx context.Context, input events.SQSEvent) string {
+func handle(ctx context.Context, input events.SQSEvent) (string, error) {
 	var data types.UserImageOptimize
 	for i := range input.Records {
 		err := json.Unmarshal([]byte(input.Records[i].Body), &data)
@@ -24,7 +24,7 @@ func handle(ctx context.Context, input events.SQSEvent) string {
 
 		u.OptimizeImage(data.ImageId)
 	}
-	return "ok"
+	return "ok", nil
 }
 
 func main() {
