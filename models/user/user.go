@@ -279,7 +279,6 @@ func (u *User) OptimizeImage(imageId string) {
 		UpdateExpression: ptr_ddbUpdateExp_OptimizeImage,
 	})
 
-	var wg sync.WaitGroup
 	deleteImages := make(map[string][]s3Types.ObjectIdentifier)
 	for _, v := range u.Image {
 		deleteImages[v.S3Bucket] = append(deleteImages[v.S3Bucket], s3Types.ObjectIdentifier{
@@ -287,7 +286,9 @@ func (u *User) OptimizeImage(imageId string) {
 		})
 	}
 
+	var wg sync.WaitGroup
 	for k, v := range deleteImages {
+		wg.Add(1)
 		bucket := k
 		objects := v
 		go func() {
