@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"d.kin-app/internal/awsx"
 	"d.kin-app/internal/awsx/lambdax"
 	"d.kin-app/internal/chix"
 	"d.kin-app/internal/httpx"
@@ -12,8 +11,6 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"net/http"
 )
@@ -58,28 +55,6 @@ func createHelloWorldHandler(key, value string) http.HandlerFunc {
 }
 
 func main() {
-	resp, err := awsx.S3.Value().DeleteObjects(context.Background(), &s3.DeleteObjectsInput{
-		Bucket: typex.P("dkin-attachment"),
-		Delete: &types.Delete{
-			Objects: []types.ObjectIdentifier{
-				{
-					Key: typex.P("local/2e3eb1c0-8efb-41b5-9879-9133e21a2805"),
-				},
-				{
-					Key: typex.P("local/2e3eb1c0-8efb-41b5-9879-9133e21a2805"),
-				},
-				{
-					Key: typex.P("asdfqwe"),
-				},
-			},
-			Quiet: true,
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(resp.Errors)
-	fmt.Println(resp.Errors)
 	r := chix.NewRouter()
 	r.Get("/", createHelloWorldHandler("hello", "world"))
 	r.Get("/need-auth", createHelloWorldHandler("hi", "user"))
