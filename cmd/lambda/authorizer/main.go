@@ -61,11 +61,10 @@ func (h *handler) Invoke(ctx context.Context, payload []byte) (result []byte, er
 	// TODO: 유저 Get Or Create 구현
 	var res events.APIGatewayV2CustomAuthorizerIAMPolicyResponse
 	res.PrincipalID = claims.Subject
-	res.Context = map[string]interface{}{
-		// TODO: 유저 정보 전문 넘기기
-		"user_id": claims.Subject,
-	}
 	res.PolicyDocument = allowPolicy()
+	res.Context = map[string]any{
+		lambdax.AuthContextKeyUserClaims: claims.Claims,
+	}
 	return json.Marshal(res)
 }
 

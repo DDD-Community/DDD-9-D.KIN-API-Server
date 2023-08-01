@@ -20,9 +20,9 @@ func NewVerifier(cache keystore.KeyStore) *Verifier {
 }
 
 type Verifier struct {
-	rl    sync.Mutex
-	Cache keystore.KeyStore
-	keys  *keystore.PublicKeys
+	Cache             keystore.KeyStore
+	refreshKeysLocker sync.Mutex
+	keys              *keystore.PublicKeys
 }
 
 func (v *Verifier) Verify(idToken string) (res Token, err error) {
@@ -69,8 +69,8 @@ func (v *Verifier) loadKeys() (err error) {
 }
 
 func (v *Verifier) refreshKeys() (err error) {
-	v.rl.Lock()
-	defer v.rl.Unlock()
+	v.refreshKeysLocker.Lock()
+	defer v.refreshKeysLocker.Unlock()
 	if v.keys != nil && !v.keys.IsExpire() {
 		return
 	}
@@ -93,8 +93,8 @@ func (v *Verifier) refreshKeys() (err error) {
 	}
 
 	v.keys = &keystore.PublicKeys{
-		KidMap:    m,
-		ExpiresAt: exp.UnixMilli(),
+		RawPublicKeys: m,
+		ExpiresAt:     exp.UnixMilli(),
 	}
 
 	err = v.Cache.Set(v.keys)
@@ -103,42 +103,3 @@ func (v *Verifier) refreshKeys() (err error) {
 	}
 	return
 }
-
-//type PublicKeys struct {
-//	publicKeyMap sync.Map
-//
-//	KidMap    map[string]string
-//	ExpiresAt int64 // unix millis
-//}
-//
-//func (p *PublicKeys) GetKey(kid string) (*rsa.PublicKey, error) {
-//	res, ok := p.publicKeyMap.Load(kid)
-//	if ok {
-//		return res.(*rsa.PublicKey), nil
-//	}
-//
-//	return p.parseKey(kid)
-//}
-//
-//func (p *PublicKeys) parseKey(kid string) (res *rsa.PublicKey, err error) {
-//	res, err = jwt.ParseRSAPublicKeyFromPEM([]byte(p.KidMap[kid]))
-//	if err != nil {
-//		return
-//	}
-//
-//	p.publicKeyMap.Store(kid, res)
-//	return
-//}
-//
-//func (p *PublicKeys) IsExpire() bool {
-//	if p.ExpiresAt <= time.Now().UnixMilli() {
-//		return true
-//	}
-//
-//	return false
-//}
-//
-//type KeyStore interface {
-//	Get() (*PublicKeys, error)
-//	Set(newKeys *PublicKeys) error
-//}

@@ -1,4 +1,4 @@
-package chix
+package middleware
 
 import (
 	"d.kin-app/internal/httpx"

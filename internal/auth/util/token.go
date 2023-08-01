@@ -8,14 +8,14 @@ const (
 
 func BearerToken(raw string) (token string, err error) {
 	if !strings.HasPrefix(raw, TokenTypeBearer) {
-		err = ErrIsNotBearerToken
+		err = ErrNotBearerToken
 		return
 	}
 
 	token = raw[len(TokenTypeBearer):]
 	if strings.Count(token, ".") != 2 {
 		token = ""
-		err = ErrIsNotBearerToken
+		err = ErrNotBearerToken
 		return
 	}
 	return

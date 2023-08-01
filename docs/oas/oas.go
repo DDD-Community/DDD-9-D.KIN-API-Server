@@ -27,8 +27,7 @@ func Write(w io.Writer) (int, error) {
 var ui []byte
 
 func UIHandler(w http.ResponseWriter, _ *http.Request) {
-	httpx.WriteContentType(w, "text/html; charset=UTF-8")
-	//httpx.WriteContentType(w, "text/yaml; charset=UTF-8")
+	httpx.WriteContentType(w, httpx.TextHTMLCharsetUTF8)
 	UIWrite(w)
 }
 

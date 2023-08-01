@@ -1,0 +1,36 @@
+plan {
+    plan_id
+    user_id
+    is_template
+    여행 목적지
+    create_date
+    travel_date
+    items [
+        {
+            content
+            number
+            memo
+            assignees [
+                {
+                    user_id
+                    check_date
+                }
+            ]
+            create_date
+            update_date
+            remind_date
+            notify_date
+        }
+    ]
+}
+
+plan_share {
+    plan_id
+    user_id
+    role
+    create_date
+}
+
+user {
+    user_id
+}

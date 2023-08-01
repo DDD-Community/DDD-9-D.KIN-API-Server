@@ -36,6 +36,9 @@ lambda-build:
 	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o build/authorizer cmd/lambda/authorizer/main.go
 	cd build && zip authorizer.zip authorizer && rm authorizer
 
+	GOOS=linux GOARCH=amd64 go build -o build/userImgOptimizer cmd/lambda/userImgOptimizer/main.go
+	cd build && zip userImgOptimizer.zip userImgOptimizer && rm userImgOptimizer
+
 lambda-deploy:
 	go run ./cmd/deploy
 

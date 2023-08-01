@@ -8,14 +8,13 @@ import (
 )
 
 type PublicKeys struct {
-	cachedKeyMap sync.Map
-
-	KidMap    map[string]string
-	ExpiresAt int64 // unix millis
+	RawPublicKeys    map[string]string
+	ExpiresAt        int64 // unix millis
+	cachedPublicKeys sync.Map
 }
 
 func (p *PublicKeys) GetKey(kid string) (*rsa.PublicKey, error) {
-	res, ok := p.cachedKeyMap.Load(kid)
+	res, ok := p.cachedPublicKeys.Load(kid)
 	if ok {
 		return res.(*rsa.PublicKey), nil
 	}
@@ -24,12 +23,12 @@ func (p *PublicKeys) GetKey(kid string) (*rsa.PublicKey, error) {
 }
 
 func (p *PublicKeys) parseKey(kid string) (res *rsa.PublicKey, err error) {
-	res, err = jwt.ParseRSAPublicKeyFromPEM([]byte(p.KidMap[kid]))
+	res, err = jwt.ParseRSAPublicKeyFromPEM([]byte(p.RawPublicKeys[kid]))
 	if err != nil {
 		return
 	}
 
-	p.cachedKeyMap.Store(kid, res)
+	p.cachedPublicKeys.Store(kid, res)
 	return
 }
 

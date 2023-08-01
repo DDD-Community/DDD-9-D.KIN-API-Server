@@ -15,4 +15,7 @@ const (
 	TextXMLCharsetUTF8         = TextXML + "; " + charsetUTF8
 	ApplicationForm            = "application/x-www-form-urlencoded"
 	MultipartForm              = "multipart/form-data"
+	TextHTML                   = "text/html"
+	TextHTMLCharsetUTF8        = TextHTML + "; " + charsetUTF8
+	TextPlain                  = "text/plain"
 )

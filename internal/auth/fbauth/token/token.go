@@ -30,14 +30,33 @@ type Claims struct {
 	auth.Token
 }
 
-// UnmarshalJSON
-// TODO: refactor 두번 호출 하는 부분 개선 필요
 func (c *Claims) UnmarshalJSON(bytes []byte) (err error) {
-	err = json.Unmarshal(bytes, &c.Token)
+	var claims map[string]any
+	err = json.Unmarshal(bytes, &claims)
 	if err != nil {
-		return err
+		return
 	}
-	return json.Unmarshal(bytes, &c.Token.Claims)
+	c.Set(claims)
+	return
+}
+
+func (c *Claims) Set(claims map[string]any) {
+	c.Token.Claims = claims
+	c.Token.AuthTime, _ = c.Token.Claims["auth_time"].(int64)
+	c.Token.Issuer, _ = c.Token.Claims["iss"].(string)
+	c.Token.Audience, _ = c.Token.Claims["aud"].(string)
+	c.Token.Expires, _ = c.Token.Claims["exp"].(int64)
+	c.Token.IssuedAt, _ = c.Token.Claims["iat"].(int64)
+	c.Token.Subject, _ = c.Token.Claims["sub"].(string)
+	c.Token.UID, _ = c.Token.Claims["uid"].(string)
+	fb, ok := c.Token.Claims["firebase"].(map[string]any)
+	if !ok {
+		return
+	}
+
+	c.Token.Firebase.SignInProvider, _ = fb["sign_in_provider"].(string)
+	c.Token.Firebase.Tenant, _ = fb["tenant"].(string)
+	c.Token.Firebase.Identities, _ = fb["identities"].(map[string]any)
 }
 
 func (c *Claims) Valid() error {
@@ -74,6 +93,31 @@ func (c *Claims) Valid() error {
 	}
 
 	return vErr
+}
+
+func (c *Claims) GetName() (res string) {
+	res, _ = c.Claims["name"].(string)
+	return
+}
+
+func (c *Claims) GetPicture() (res string) {
+	res, _ = c.Claims["picture"].(string)
+	return
+}
+
+func (c *Claims) GetUserId() (res string) {
+	res, _ = c.Claims["user_id"].(string)
+	return
+}
+
+func (c *Claims) GetEmail() (res string) {
+	res, _ = c.Claims["email"].(string)
+	return
+}
+
+func (c *Claims) GetEmailVerified() (res bool) {
+	res, _ = c.Claims["email_verified"].(bool)
+	return
 }
 
 // CASE-1
