@@ -212,9 +212,9 @@ func (u *User) ProfileUpdate(imageURL *string, nickname string) (err error) {
 	return
 }
 
-var ptr_ddbUpdateExp_MakeProfileImageUploadURL = typex.P("SET image = :new_image")
+var ptr_ddbUpdateExp_ProfileImageUploadURL = typex.P("SET image = :new_image")
 
-func (u *User) MakeProfileImageUploadURL(file ImageFile) (res UploadLink, err error) {
+func (u *User) ProfileImageUploadURL(file ImageFile) (res UploadLink, err error) {
 	img := makeImage(file)
 	ctx := u.Context()
 	resp, err := awsx.S3Presign.Value().PresignPutObject(ctx, &s3.PutObjectInput{
@@ -237,7 +237,7 @@ func (u *User) MakeProfileImageUploadURL(file ImageFile) (res UploadLink, err er
 			":new_image": typex.Must(attributevalue.Marshal(newImage)),
 		},
 		ReturnValuesOnConditionCheckFailure: ddbTypes.ReturnValuesOnConditionCheckFailureAllOld,
-		UpdateExpression:                    ptr_ddbUpdateExp_MakeProfileImageUploadURL,
+		UpdateExpression:                    ptr_ddbUpdateExp_ProfileImageUploadURL,
 	})
 	if err != nil {
 		return
@@ -267,22 +267,30 @@ func (u *User) OptimizeImage(imageId string) {
 		return
 	}
 
+	newImage := map[string]Image{optimizedImage.ImageId: optimizedImage}
+	newImageURL := optimizedImage.imageURL()
 	_, err = awsx.DynamoDB.Value().UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		Key:       u.ddbKey(),
 		TableName: ptr_ddbTableName,
 		ExpressionAttributeValues: map[string]ddbTypes.AttributeValue{
-			":new_image": typex.Must(attributevalue.Marshal(map[string]Image{
-				optimizedImage.ImageId: optimizedImage,
-			})),
-			"new_image_url": dynamodbx.String(optimizedImage.imageURL()),
+			":new_image":     typex.Must(attributevalue.Marshal(newImage)),
+			":new_image_url": dynamodbx.String(newImageURL),
 		},
-		UpdateExpression: ptr_ddbUpdateExp_OptimizeImage,
+		ReturnValuesOnConditionCheckFailure: ddbTypes.ReturnValuesOnConditionCheckFailureAllOld,
+		UpdateExpression:                    ptr_ddbUpdateExp_OptimizeImage,
 	})
+	if err != nil {
+		return
+	}
 
 	deleteImages := make(map[string][]s3Types.ObjectIdentifier)
-	for _, v := range u.Image {
+	for k, v := range u.Image {
+		if k == optimizedImage.ImageId {
+			continue
+		}
+
 		deleteImages[v.S3Bucket] = append(deleteImages[v.S3Bucket], s3Types.ObjectIdentifier{
-			Key: &v.S3ObjectKey,
+			Key: typex.P(v.S3ObjectKey),
 		})
 	}
 
@@ -304,6 +312,9 @@ func (u *User) OptimizeImage(imageId string) {
 	}
 
 	wg.Wait()
+
+	u.Image = newImage
+	u.ImageURL = &newImageURL
 }
 
 func (u *User) cloneImage() (res map[string]Image) {

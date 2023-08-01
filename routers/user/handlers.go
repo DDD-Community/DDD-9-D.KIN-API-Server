@@ -203,7 +203,7 @@ func GetProfileUploadURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := u.MakeProfileImageUploadURL(user.ImageFile{
+	res, err := u.ProfileImageUploadURL(user.ImageFile{
 		Size:     body.FileSize,
 		MimeType: body.MimeType,
 	})
