@@ -30,10 +30,10 @@ gen: oas
 # TODO: 우선 묶어서 전체 배포
 lambda-build:
 	-rm -r build/
-	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o build/app main.go
+	GOOS=linux GOARCH=amd64 go build -o build/app main.go
 	cd build && zip app.zip app && rm app
 
-	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o build/authorizer cmd/lambda/authorizer/main.go
+	GOOS=linux GOARCH=amd64 go build -o build/authorizer cmd/lambda/authorizer/main.go
 	cd build && zip authorizer.zip authorizer && rm authorizer
 
 	GOOS=linux GOARCH=amd64 go build -o build/userImgOptimizer cmd/lambda/userImgOptimizer/main.go
