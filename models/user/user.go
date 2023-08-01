@@ -214,15 +214,11 @@ func (u *User) ProfileUpdate(imageURL *string, nickname string) (err error) {
 
 var ptr_ddbUpdateExp_ProfileImageUploadURL = typex.P("SET image = :new_image")
 
-func (u *User) ProfileImageUploadURL(file ImageFile) (res UploadLink, err error) {
-	img := makeImage(file)
+func (u *User) ProfileImageUploadURL(file ImageFile) (_ Image, err error) {
 	ctx := u.Context()
-	resp, err := awsx.S3Presign.Value().PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket:        &img.S3Bucket,
-		Key:           &img.S3ObjectKey,
-		ContentLength: img.File.Size,
-		ContentType:   &img.File.MimeType,
-	})
+
+	img := makeImage(file)
+	err = img.makeUploadURL(ctx)
 	if err != nil {
 		return
 	}
@@ -244,10 +240,7 @@ func (u *User) ProfileImageUploadURL(file ImageFile) (res UploadLink, err error)
 	}
 
 	u.Image = newImage
-
-	res.URL = resp.URL
-	res.Method = resp.Method
-	return
+	return img, nil
 }
 
 var ptr_ddbUpdateExp_OptimizeImage = typex.P(
@@ -268,7 +261,7 @@ func (u *User) OptimizeImage(imageId string) {
 	}
 
 	newImage := map[string]Image{optimizedImage.ImageId: optimizedImage}
-	newImageURL := optimizedImage.imageURL()
+	newImageURL := optimizedImage.ImageURL()
 	_, err = awsx.DynamoDB.Value().UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		Key:       u.ddbKey(),
 		TableName: ptr_ddbTableName,

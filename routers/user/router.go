@@ -11,5 +11,6 @@ func NewHTTPHandler() http.Handler {
 	r.Post("/signUpUser", SignUpUser)
 	r.Post("/validationNickname", ValidationNickname)
 	r.Put("/updateUser", UpdateUser)
+	r.Post("/getProfileUploadURL", GetProfileUploadURL)
 	return r
 }

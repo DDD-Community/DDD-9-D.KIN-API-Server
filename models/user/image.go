@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"path"
+	"time"
 )
 
 const (
@@ -28,17 +29,20 @@ var (
 )
 
 type Image struct {
-	ImageId     string    `dynamodbav:"-"`
-	S3Bucket    string    `dynamodbav:"s3_bucket"`
-	S3ObjectKey string    `dynamodbav:"s3_object_key"`
-	File        ImageFile `dynamodbav:"file"`
+	ImageId           string    `dynamodbav:"-"`
+	S3Bucket          string    `dynamodbav:"s3_bucket"`
+	S3ObjectKey       string    `dynamodbav:"s3_object_key"`
+	S3UploadURL       *string   `dynamodbav:"s3_upload_url,omitempty"`
+	S3UploadMethod    *string   `dynamodbav:"s3_upload_method,omitempty"`
+	S3UploadExpiresAt *int64    `dynamodbav:"s3_upload_expires_at,omitempty"`
+	File              ImageFile `dynamodbav:"file"`
 }
 
 func (i *Image) genImageId() {
-	i.ImageId = imageId(i.imageURL())
+	i.ImageId = imageId(i.ImageURL())
 }
 
-func (i *Image) imageURL() string {
+func (i *Image) ImageURL() string {
 	return fmt.Sprintf("https://%s.s3.ap-northeast-2.amazonaws.com/%s", i.S3Bucket, i.S3ObjectKey)
 }
 
@@ -84,14 +88,27 @@ func (i *Image) makeWebP(ctx context.Context) (_ Image, err error) {
 	return optimizedImage, nil
 }
 
+func (i *Image) makeUploadURL(ctx context.Context) (err error) {
+	exp := time.Now().Add(time.Hour)
+	resp, err := awsx.S3Presign.Value().PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket:        &i.S3Bucket,
+		Key:           &i.S3ObjectKey,
+		ContentLength: i.File.Size,
+		ContentType:   &i.File.MimeType,
+	}, s3.WithPresignExpires(exp.Sub(time.Now())))
+	if err != nil {
+		return
+	}
+
+	i.S3UploadURL = &resp.URL
+	i.S3UploadMethod = &resp.Method
+	i.S3UploadExpiresAt = typex.P(exp.UnixMilli())
+	return
+}
+
 type ImageFile struct {
 	Size     int64  `dynamodbav:"size"`
 	MimeType string `dynamodbav:"mime_type"`
-}
-
-type UploadLink struct {
-	URL    string
-	Method string
 }
 
 func makeImage(file ImageFile) (res Image) {

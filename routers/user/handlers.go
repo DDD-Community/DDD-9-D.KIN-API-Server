@@ -6,7 +6,6 @@ import (
 	"d.kin-app/models/user"
 	"d.kin-app/routers/util"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -212,5 +211,23 @@ func GetProfileUploadURL(w http.ResponseWriter, r *http.Request) {
 		//TODO: Logging
 		return
 	}
-	fmt.Println(res)
+	if res.S3UploadURL == nil || res.S3UploadMethod == nil {
+		httpx.ErrorInternalServerError(w)
+		return
+	}
+
+	var resp struct {
+		UploadURL    string `json:"uploadURL"`
+		UploadMethod string `json:"uploadMethod"`
+		ImageURL     string `json:"imageURL"`
+	}
+
+	resp.UploadURL = *res.S3UploadURL
+	resp.UploadMethod = *res.S3UploadMethod
+	resp.ImageURL = res.ImageURL()
+
+	err = httpx.SetBodyJSON(w, http.StatusOK, resp)
+	if err != nil {
+		//TODO: Logging
+	}
 }
