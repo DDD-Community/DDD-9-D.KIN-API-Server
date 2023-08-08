@@ -7,18 +7,41 @@ paths:
 
 # Reference : https://swagger.io/docs/specification/components/
 
-#components:
-#  responses:
-#    TestExample:
-#      description: ErrorExample
-#      content:
-#        application/json:
-#          examples:
-#            ERR-0:
-#              value: >
-#                {
-#                    "code": "ERR-0",
-#                    "message": "error message"
-#                }
-#          schema:
-#            $ref: 'schemas.yaml#/components/schemas/ErrorData'
+components:
+  responses:
+    BadRequest:
+      description: 잘못된 요청, 필드 검증 실패 등
+      content:
+        application/json:
+          example: >
+            {
+              "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
+            }
+
+    Unauthorized:
+      description: 인증되지 않은 토큰 및 사용자
+      content:
+        application/json:
+          example: >
+            {
+              "message": "Unauthorized"
+            }
+
+    InternalServerError:
+      description: 서버가 에러처리를 못했거나, 서버가 잘못함
+      content:
+        application/json:
+          example: >
+            {
+              "message": "internal server application error"
+            }
+
+    APIError-NicknameAlreadyExists:
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yaml#/components/schemas/ErrorData'
+          example:
+            $ref: 'examples.yaml#/ERR-101'
+      description: 이미 사용중인 닉네임
+

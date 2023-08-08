@@ -7,26 +7,459 @@ servers:
 - description: API 문서
   url: https://jrq7w2orw3.execute-api.ap-northeast-2.amazonaws.com
 tags:
-- description: 태그 태그 태그
-  name: Test Tag
+- description: 유저 관련 API
+  name: User
 paths:
-  /:
+  /getUser:
     get:
-      description: 테스트용 API
       responses:
         "200":
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: 성공
+        "400":
+          content:
+            application/json:
               example: |
                 {
-                  "hello": "world"
+                  "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
                 }
+          description: "잘못된 요청, 필드 검증 실패 등"
+        "401":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "Unauthorized"
+                }
+          description: 인증되지 않은 토큰 및 사용자
+        "500":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "internal server application error"
+                }
+          description: "서버가 에러처리를 못했거나, 서버가 잘못함"
+      security:
+      - jwt: []
+      summary: 유저 정보 가져오기
+      tags:
+      - User
+  /signUpUser:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_signUpUser_post_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
           description: 성공
-      summary: Hello World
+        "400":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
+                }
+          description: "잘못된 요청, 필드 검증 실패 등"
+        "401":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "Unauthorized"
+                }
+          description: 인증되지 않은 토큰 및 사용자
+        "409":
+          content:
+            application/json:
+              example:
+                $ref: examples.yaml#/ERR-101
+              schema:
+                $ref: '#/components/schemas/ErrorData'
+          description: 이미 사용중인 닉네임
+        "500":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "internal server application error"
+                }
+          description: "서버가 에러처리를 못했거나, 서버가 잘못함"
+      security:
+      - jwt: []
+      summary: 유저 회원가입 완료
+      tags:
+      - User
+  /validationNickname:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_validationNickname_post_request'
+        required: true
+      responses:
+        "204":
+          description: 성공
+        "400":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
+                }
+          description: "잘못된 요청, 필드 검증 실패 등"
+        "409":
+          content:
+            application/json:
+              example:
+                $ref: examples.yaml#/ERR-101
+              schema:
+                $ref: '#/components/schemas/ErrorData'
+          description: 이미 사용중인 닉네임
+        "500":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "internal server application error"
+                }
+          description: "서버가 에러처리를 못했거나, 서버가 잘못함"
+      summary: 닉네임 검증
+      tags:
+      - User
+  /updateUser:
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_updateUser_put_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: 성공
+        "400":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
+                }
+          description: "잘못된 요청, 필드 검증 실패 등"
+        "401":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "Unauthorized"
+                }
+          description: 인증되지 않은 토큰 및 사용자
+        "409":
+          content:
+            application/json:
+              examples:
+                ERR-100:
+                  $ref: '#/components/examples/ERR-100'
+                ERR-101:
+                  $ref: '#/components/examples/ERR-101'
+              schema:
+                $ref: '#/components/schemas/ErrorData'
+          description: |
+            `ERR-100` - 회원가입 하지않은 유저<br> `ERR-101` - 이미 사용중인 닉네임
+        "500":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "internal server application error"
+                }
+          description: "서버가 에러처리를 못했거나, 서버가 잘못함"
+      security:
+      - jwt: []
+      summary: 프로필 정보 업데이트
+      tags:
+      - User
+  /getProfileUploadURL:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_getProfileUploadURL_post_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_getProfileUploadURL_post_200_response'
+          description: 성공
+        "400":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
+                }
+          description: "잘못된 요청, 필드 검증 실패 등"
+        "401":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "Unauthorized"
+                }
+          description: 인증되지 않은 토큰 및 사용자
+        "500":
+          content:
+            application/json:
+              example: |
+                {
+                  "message": "internal server application error"
+                }
+          description: "서버가 에러처리를 못했거나, 서버가 잘못함"
+      security:
+      - jwt: []
+      summary: 프로필 이미지 업로드 URL 요청
+      tags:
+      - User
 components:
+  examples:
+    ERR-100:
+      description: 회원가입이 되어 있지 않는 회원인 경우
+      summary: 회원가입 필요
+      value: |
+        {
+          "code": "ERR-100",
+          "message": "need sign up first"
+        }
+    ERR-101:
+      description: 이미 사용중인 닉네임인 경우
+      summary: 닉네임 중복
+      value: |
+        {
+          "code": "ERR-101",
+          "message": "nickname already exists"
+        }
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          example: |
+            {
+              "message": "대충 클라이언트가 줘야할 데이터가 잘못되었다는 말"
+            }
+      description: "잘못된 요청, 필드 검증 실패 등"
+    Unauthorized:
+      content:
+        application/json:
+          example: |
+            {
+              "message": "Unauthorized"
+            }
+      description: 인증되지 않은 토큰 및 사용자
+    InternalServerError:
+      content:
+        application/json:
+          example: |
+            {
+              "message": "internal server application error"
+            }
+      description: "서버가 에러처리를 못했거나, 서버가 잘못함"
+    APIError-NicknameAlreadyExists:
+      content:
+        application/json:
+          example:
+            $ref: examples.yaml#/ERR-101
+          schema:
+            $ref: '#/components/schemas/ErrorData'
+      description: 이미 사용중인 닉네임
   schemas:
-    Empty:
-      example: {}
+    User:
+      example:
+        needSignUp: false
+        gender: FEMALE
+        imageURL: https://example.com
+        nickname: 홍길동
+        userId: abcdefg
+        yearOfBirth: 1990
+      properties:
+        userId:
+          example: abcdefg
+          type: string
+        imageURL:
+          description: "http, https, url 링크"
+          example: https://example.com
+          format: url
+          nullable: true
+          type: string
+        nickname:
+          example: 홍길동
+          nullable: true
+          type: string
+        yearOfBirth:
+          example: 1990
+          nullable: true
+          type: integer
+        gender:
+          $ref: '#/components/schemas/NullableGender'
+        needSignUp:
+          description: 회원가입이 필요한 경우 true
+          example: false
+          type: boolean
+      required:
+      - gender
+      - imageURL
+      - needSignUp
+      - nickname
+      - userId
+      - yearOfBirth
+      title: 유저 모델
+      type: object
+    NullableURL:
+      description: "http, https, url 링크"
+      example: https://example.com
+      format: url
+      nullable: true
+      type: string
+    NullableGender:
+      description: |
+        성별 형식:
+         * `FEMALE` - 여
+         * `MALE` - 남
+      enum:
+      - FEMALE
+      - MALE
+      example: FEMALE
+      nullable: true
+      type: string
+    Gender:
+      description: |
+        성별 형식:
+         * `FEMALE` - 여
+         * `MALE` - 남
+      enum:
+      - FEMALE
+      - MALE
+      example: FEMALE
+      type: string
+    ErrorData:
+      description: 에러 공용 모델
+      properties:
+        code:
+          example: ERR-0
+          type: string
+        message:
+          example: 메세지
+          type: string
+      required:
+      - message
+      title: 에러 모델
+    URL:
+      description: "http, https, url 링크"
+      example: https://example.com
+      format: url
+      type: string
+    _signUpUser_post_request:
+      properties:
+        nickname:
+          example: 가나다라마바사
+          maxLength: 8
+          minLength: 1
+          type: string
+        yearOfBirth:
+          example: 1900
+          format: int16
+          type: integer
+        gender:
+          $ref: '#/components/schemas/Gender'
+      required:
+      - gender
+      - nickname
+      - yearOfBirth
+      type: object
+    _validationNickname_post_request:
+      properties:
+        nickname:
+          example: 가나다라마바사
+          maxLength: 8
+          minLength: 1
+          type: string
+      required:
+      - nickname
+      type: object
+    _updateUser_put_request:
+      properties:
+        imageURL:
+          description: "http, https, url 링크"
+          example: https://example.com
+          format: url
+          nullable: true
+          type: string
+        nickname:
+          example: 가나다라마바사
+          maxLength: 8
+          minLength: 1
+          type: string
+      required:
+      - imageURL
+      - nickname
+      type: object
+    _getProfileUploadURL_post_request:
+      properties:
+        fileSize:
+          format: int64
+          maximum: 104857600
+          type: integer
+        mimeType:
+          example: image/png
+          pattern: "^image\\/[\\w]+$"
+          type: string
+      required:
+      - fileSize
+      - mimeType
+      type: object
+    _getProfileUploadURL_post_200_response:
+      description: |
+        `uploadURL` 업로드 할곳 http url<br> `imageURL` 실제 이미지 링크
+      example:
+        uploadMethod: PUT
+        uploadURL: https://example.com
+        imageURL: https://example.com
+      properties:
+        uploadURL:
+          description: "http, https, url 링크"
+          example: https://example.com
+          format: url
+          type: string
+        uploadMethod:
+          description: http method
+          example: PUT
+          type: string
+        imageURL:
+          description: "http, https, url 링크"
+          example: https://example.com
+          format: url
+          type: string
+      required:
+      - imageURL
+      - uploadMethod
+      - uploadURL
       type: object
   securitySchemes:
     jwt:

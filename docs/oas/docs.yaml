@@ -9,31 +9,236 @@ servers:
     description: API 문서
 
 tags:
-  - name: 'Test Tag'
-    description: 태그 태그 태그
+  - name: 'User'
+    description: 유저 관련 API
 
 paths:
-  '/':
+  '/getUser':
     get:
-      summary: 'Hello World'
-      description: 테스트용 API
+      security:
+        - jwt: [ ]
+      tags:
+        - 'User'
+      summary: '유저 정보 가져오기'
+
+      parameters:
+        - $ref: 'parameters.yaml#/components/parameters/HeaderDeviceId'
 
       responses:
         200:
-          description: 성공
           content:
             application/json:
-              example: >
-                {
-                  "hello": "world"
-                }
+              schema:
+                $ref: 'schemas.yaml#/components/schemas/User'
+          description: 성공
+        400:
+          $ref: 'response.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'response.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'response.yaml#/components/responses/InternalServerError'
 
+  '/signUpUser':
+    post:
+      security:
+        - jwt: [ ]
+      tags:
+        - 'User'
+      summary: '유저 회원가입 완료'
+
+      parameters:
+        - $ref: 'parameters.yaml#/components/parameters/HeaderDeviceId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nickname, yearOfBirth, gender]
+              properties:
+                nickname:
+                  type: string
+                  example: 가나다라마바사
+                  minLength: 1
+                  maxLength: 8
+
+                yearOfBirth:
+                  type: integer
+                  format: int16
+                  example: 1900
+                gender:
+                  $ref: 'schemas.yaml#/components/schemas/Gender'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas.yaml#/components/schemas/User'
+          description: 성공
+        400:
+          $ref: 'response.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'response.yaml#/components/responses/Unauthorized'
+        409:
+          $ref: 'response.yaml#/components/responses/APIError-NicknameAlreadyExists'
+        500:
+          $ref: 'response.yaml#/components/responses/InternalServerError'
+
+  '/validationNickname':
+    post:
+      tags:
+        - 'User'
+      summary: '닉네임 검증'
+
+      parameters:
+        - $ref: 'parameters.yaml#/components/parameters/HeaderDeviceId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nickname]
+              properties:
+                nickname:
+                  type: string
+                  example: 가나다라마바사
+                  minLength: 1
+                  maxLength: 8
+
+      responses:
+        204:
+          description: 성공
+        400:
+          $ref: 'response.yaml#/components/responses/BadRequest'
+        409:
+          $ref: 'response.yaml#/components/responses/APIError-NicknameAlreadyExists'
+
+        500:
+          $ref: 'response.yaml#/components/responses/InternalServerError'
+
+  '/updateUser':
+    put:
+      security:
+        - jwt: [ ]
+      tags:
+        - 'User'
+      summary: '프로필 정보 업데이트'
+
+      parameters:
+        - $ref: 'parameters.yaml#/components/parameters/HeaderDeviceId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [imageURL, nickname]
+              properties:
+                imageURL:
+                  $ref: 'schemas.yaml#/components/schemas/NullableURL'
+
+                nickname:
+                  type: string
+                  example: 가나다라마바사
+                  minLength: 1
+                  maxLength: 8
+
+
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas.yaml#/components/schemas/User'
+          description: 성공
+
+        400:
+          $ref: 'response.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'response.yaml#/components/responses/Unauthorized'
+        409:
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas.yaml#/components/schemas/ErrorData'
+
+              examples:
+                ERR-100:
+                  $ref: 'examples.yaml#/ERR-100'
+                ERR-101:
+                  $ref: 'examples.yaml#/ERR-101'
+
+          description: >
+            `ERR-100` - 회원가입 하지않은 유저<br>
+            `ERR-101` - 이미 사용중인 닉네임
+
+        500:
+          $ref: 'response.yaml#/components/responses/InternalServerError'
+
+
+  '/getProfileUploadURL':
+    post:
+      security:
+        - jwt: [ ]
+      tags:
+        - 'User'
+      summary: '프로필 이미지 업로드 URL 요청'
+
+      parameters:
+        - $ref: 'parameters.yaml#/components/parameters/HeaderDeviceId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ fileSize, mimeType ]
+              properties:
+                fileSize:
+                  type: integer
+                  format: int64
+                  maximum: 104857600
+
+                mimeType:
+                  type: string
+                  example: image/png
+                  pattern: ^image\/[\w]+$
+
+
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [uploadURL, uploadMethod, imageURL]
+                properties:
+                  uploadURL:
+                    $ref: 'schemas.yaml#/components/schemas/URL'
+                  uploadMethod:
+                    type: string
+                    example: PUT
+                    description: http method
+                  imageURL:
+                    $ref: 'schemas.yaml#/components/schemas/URL'
+                description: >
+                  `uploadURL` 업로드 할곳 http url<br>
+                  `imageURL` 실제 이미지 링크
+
+          description: 성공
+        400:
+          $ref: 'response.yaml#/components/responses/BadRequest'
+        401:
+          $ref: 'response.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: 'response.yaml#/components/responses/InternalServerError'
 
 components:
-  schemas:
-    Empty:
-      example: { }
-      type: object
   securitySchemes:
     jwt:
       type: http

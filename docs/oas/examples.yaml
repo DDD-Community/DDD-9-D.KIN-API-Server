@@ -1,10 +1,17 @@
-openapi: 3.0.3
-info:
-  title: 예제 정의
-  version: '-'
+ERR-100:
+  summary: 회원가입 필요
+  description: 회원가입이 되어 있지 않는 회원인 경우
+  value: >
+    {
+      "code": "ERR-100",
+      "message": "need sign up first"
+    }
 
-paths:
-
-
-#components:
-#  examples:
+ERR-101:
+  summary: 닉네임 중복
+  description: 이미 사용중인 닉네임인 경우
+  value: >
+    {
+      "code": "ERR-101",
+      "message": "nickname already exists"
+    }

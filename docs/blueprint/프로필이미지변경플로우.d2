@@ -1,0 +1,28 @@
+Flow {
+    shape: sequence_diagram
+
+    Client -> API Server: 1. POST /getProfileUploadURL request.body(json)\{fileSize, mimeType\}
+    API Server -> Client: 2. OK, response1
+    
+    Client -> AWS S3: 3. \{response1.body(json).uploadMethod\} \{response1.body(json).uploadURL\}, upload image file binary
+    AWS S3 -> Client: 4. OK
+    
+    Client -> API Server: 5. PUT /updateUser, update request.body(json)\{nickname, imageURL=\{response1.body(json).imageURL\}
+    API Server -> Client: 6. OK
+}
+
+Memo: |md
+# 설명
+1. `POST /getProfileUploadURL` 를 요청
+2. `uploadMethod`, `uploadURL`, `imageURL` 정보를 받음
+- `uploadMethod`: HTTP Method, 업로드 메서드
+- `uploadURL`: HTTP URL, 업로드 URL
+- `imageURL`: 이미지 URL
+3. `uploadMethod`, `uploadURL`를 이용하여 **AWS S3** 에 이미지 파일 업로드
+4. 업로드 성공
+5. `PUT /updateUser`를 요청
+- `nickname`: 변경점이 없을시 그냥 기존 닉네임으로
+- `imageURL`: **2.** 에서 받은 `imageURL`를 대입
+6. 변경 성공
+
+|

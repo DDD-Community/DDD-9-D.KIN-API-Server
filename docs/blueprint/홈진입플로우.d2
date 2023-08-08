@@ -1,0 +1,74 @@
+
+SplashScreen {
+    Start {
+        shape: oval 
+    }
+    IsLogin {
+        shape: diamond
+    }
+    Start -> IsLogin
+
+    IsLogin -> API GET /getUser: true
+
+    response\.body(json)\.needSignUp(boolean) {
+        shape: diamond
+    }
+
+    API GET /getUser -> response\.body(json)\.needSignUp(boolean)
+    
+    
+}
+
+SplashScreen.IsLogin -> LoginScreen: false
+SplashScreen.response\.body(json)\.needSignUp(boolean) -> SignUpScreen: true
+SplashScreen.response\.body(json)\.needSignUp(boolean) -> Move HomeScreen: false
+
+
+LoginScreen {
+    Start {
+        shape: oval 
+    }
+
+    Start -> Login
+
+    IsLoginSuccess {
+        shape: diamond
+    }
+
+    Login -> IsLoginSuccess
+
+    IsLoginSuccess -> Error Handling: false
+
+    IsLoginSuccess -> API GET /getUser: true
+
+    response\.body(json)\.needSignUp(boolean) {
+        shape: diamond
+    }
+
+    API GET /getUser -> response\.body(json)\.needSignUp(boolean)
+}
+
+LoginScreen.response\.body(json)\.needSignUp(boolean) -> SignUpScreen: true
+LoginScreen.response\.body(json)\.needSignUp(boolean) -> HomeScreen: false
+
+
+SignUpScreen {
+    Start {
+        shape: oval 
+    }
+
+    Start -> UI/UX Flow
+
+    UI/UX Flow -> API POST /signUpUser
+
+    response\.status {
+        shape: diamond
+    }
+
+    API POST /signUpUser -> response\.status
+    response\.status -> Error Handling: 그외
+
+    
+}
+
+SignUpScreen.response\.status -> HomeScreen: HTTP Status 200 OK

@@ -23,6 +23,68 @@ components:
       description: http, https, url 링크
       example: https://example.com
 
+    NullableURL:
+      type: string
+      format: url
+      description: http, https, url 링크
+      example: https://example.com
+      nullable: true
+
+    Gender:
+      type: string
+      enum:
+        - FEMALE
+        - MALE
+      description: >
+        성별 형식:
+         * `FEMALE` - 여
+         * `MALE` - 남
+      example: FEMALE
+
+    NullableGender:
+      type: string
+      enum:
+        - FEMALE
+        - MALE
+      description: >
+        성별 형식:
+         * `FEMALE` - 여
+         * `MALE` - 남
+      example: FEMALE
+      nullable: true
+
+    User:
+      type: object
+      title: 유저 모델
+      required: [userId, imageURL, nickname, yearOfBirth, gender, needSignUp]
+      properties:
+        userId:
+          type: string
+          example: abcdefg
+
+        imageURL:
+          $ref: '#/components/schemas/NullableURL'
+
+        nickname:
+          type: string
+          example: 홍길동
+          nullable: true
+
+        yearOfBirth:
+          type: integer
+          example: 1990
+          nullable: true
+
+        gender:
+          $ref: '#/components/schemas/NullableGender'
+
+        needSignUp:
+          type: boolean
+          description: 회원가입이 필요한 경우 true
+          example: false
+
+
+
     ErrorData:
       title: 에러 모델
       description: 에러 공용 모델

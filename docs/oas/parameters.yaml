@@ -5,5 +5,14 @@ info:
 
 paths:
 
-#components:
-#  parameters:
+components:
+  parameters:
+    HeaderDeviceId:
+      in: header
+      name: Device-Id
+      schema:
+        type: string
+      required: true
+      example: 28f2654e-a99c-4805-902c-af1599360cde
+
+
