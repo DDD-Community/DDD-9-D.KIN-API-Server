@@ -1,0 +1,10 @@
+shape: sequence_diagram
+
+Client -> API Server: 1. POST /getProfileUploadURL request.body(json)\{fileSize, mimeType\}
+API Server -> Client: 2. OK, response1
+
+Client -> AWS S3: 3. \{response1.body(json).uploadMethod\} \{response1.body(json).uploadURL\}, upload image file binary
+AWS S3 -> Client: 4. OK
+
+Client -> API Server: 5. PUT /updateUser, update request.body(json)\{nickname, imageURL=\{response1.body(json).imageURL\}
+API Server -> Client: 6. OK
